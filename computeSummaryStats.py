@@ -10,4 +10,4 @@ def computeSummaryStats(dist,printEn=False,name="",numSamples=10000):
         print("Summary Statistics: {}".format(name))
         print("5th, 50th, 95th percentiles: {}".format(sumStats))
         print("Mean: {}".format(np.mean(samplesArr)))
-    return sumStats
+    return sumStats,samples

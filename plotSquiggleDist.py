@@ -4,16 +4,28 @@
 
 
 import squigglepy as sq
+import matplotlib as mpl
 import matplotlib.pyplot as plt
+from matplotlib.ticker import MultipleLocator,FormatStrFormatter,MaxNLocator
 import pandas as pd
 import contextlib
+import numpy as np
 
 def plotSquiggleDist(dist,printEn=False,titleTxt="",numSamples = 10000,
                      xText="",xlims = [0,0],bins=25,dist2=sq.norm(0,0),
-                     bins2=25,name1="",name2=""):
+                     bins2=25,name1="",name2="",data1=np.ndarray(0),data2=np.ndarray(0),ylab="Density"):
 
+    mpl.rcParams['pdf.fonttype'] = 42
+    mpl.rcParams['ps.fonttype'] = 42
+    mpl.rcParams['font.family'] = 'Arial'
+
+    
     #Generate samples and store in data frame
-    samples = dist @ numSamples
+    if data1.size == 0:
+        samples = dist @ numSamples
+    else:
+        samples = data1
+        
     if xlims != [0,0]:
         samples = samples[samples>=xlims[0]]
         samples = samples[samples<=xlims[1]]
@@ -28,7 +40,10 @@ def plotSquiggleDist(dist,printEn=False,titleTxt="",numSamples = 10000,
     
     #If 2nd histogram was populated, plot it
     if dist2.mean != 0.0:
-        samples = dist2 @ numSamples
+        if data2.size == 0:
+            samples = dist2 @ numSamples
+        else:
+            samples = data2       
         if xlims != [0,0]:
             samples = samples[samples>xlims[0]]            
             samples = samples[samples<xlims[1]]
@@ -70,17 +85,22 @@ def plotSquiggleDist(dist,printEn=False,titleTxt="",numSamples = 10000,
         ax.set_xlim(xlims[0], xlims[1])
     
     #Y
-    ax.set_yticklabels([])
-    ax.set_ylabel("Frequency")
+    #ax.set_yticklabels([])
+    ax.set_ylabel(ylab)
     
     #Overall
     ax.grid(False)
     ax.set_title(titleTxt, size = 17, pad = 10)
     
+    #Add borders
+    ax.patch.set_edgecolor('black')  
+    ax.patch.set_linewidth('1')
+    
     #Remove ticks and spines
     ax.tick_params(left = False, bottom = False)
     for ax, spine in ax.spines.items():
         spine.set_visible(False)
+
     plt.show()
     
     if printEn:
