@@ -45,6 +45,8 @@ moralWeightC          = sq.discrete(chickenSimData)
 animalsPerDollarS     = sq.norm(mean=14796, sd=7708,lclip=0.0)
 hoursPerAnimalS       = sq.lognorm(mean=np.log(20),sd=((np.log(180)-np.log(20))/2))/(60) #Hours
 probRenderedUnconS    = 2/3
+sufferingIntensityS   = sq.gamma(2,0.625,lclip=1/6,rclip=5)
+sufferingIntensityS   = sq.gamma(2,0.5,lclip=1/6,rclip=5)
 
 #Data for coporate campaings (e.g. THL) from Duffy (2023)
 hoursPerDollarC = sq.gamma( 1.7, 1)*(365*24)
@@ -53,7 +55,7 @@ hoursPerDollarC = sq.gamma( 1.7, 1)*(365*24)
 
 #Obtain hours of disabling-equivalent pain removed per dollar donated to SWP's 
 #intervention 
-hoursPerDollarS       = animalsPerDollarS*hoursPerAnimalS*probRenderedUnconS
+hoursPerDollarS       = animalsPerDollarS*hoursPerAnimalS*probRenderedUnconS*sufferingIntensityS
 
 #Multiply by the RP moral weights to obtain weighted hours of 
 #suffering disabling-equivalent pain averted per dollar 
@@ -63,6 +65,7 @@ weightedHoursPerDollarC = moralWeightC*hoursPerDollarC
 #Summary stats 
 sumStatsS,samplesS = computeSummaryStats(weightedHoursPerDollarS,printEn=True,name='Human-Equivalent Hours Suffering Averted Per Dollar Donated to SWP:',numSamples = numSamples)
 sumStatsC,samplesC = computeSummaryStats(weightedHoursPerDollarC,printEn=True,name='Human-Equivalent Hours Suffering Averted Per Dollar Donated to THL:',numSamples = numSamples)
+computeSummaryStats(sufferingIntensityS,printEn=True,name='Pain Intensity:',numSamples = numSamples)
 
 
 ############################## PLOTS #############################
@@ -90,6 +93,14 @@ plotSquiggleDist(moralWeightS,printEn=True,
                  name2='Chickens')
 
 #Hours of suffering per shrimp
+plotSquiggleDist(sufferingIntensityS,printEn=True,
+                 titleTxt="Pain Intensity for Slaughtered Shrimp",
+                 numSamples = 10000,
+                 xText="Pain Intensity (0.15 = Hurtful, 1 = Disabling, 5 = Excruciating)",
+                 bins  = 40,
+                 xlims = [0.15,5])
+
+#Intensity of shrimp suffering 
 plotSquiggleDist(hoursPerAnimalS,printEn=True,
                  titleTxt="Hours of Suffering for Slaughtered Shrimp",
                  numSamples = 10000,
