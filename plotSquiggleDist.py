@@ -13,7 +13,7 @@ import numpy as np
 
 def plotSquiggleDist(dist,printEn=False,titleTxt="",numSamples = 10000,
                      xText="",xlims = [0,0],bins=25,dist2=sq.norm(0,0),
-                     bins2=25,name1="",name2="",data1=np.ndarray(0),data2=np.ndarray(0),ylab="Density"):
+                     bins2=25,name1="",name2="",data1=np.ndarray(0),data2=np.ndarray(0)):
 
     mpl.rcParams['pdf.fonttype'] = 42
     mpl.rcParams['ps.fonttype'] = 42
@@ -32,7 +32,7 @@ def plotSquiggleDist(dist,printEn=False,titleTxt="",numSamples = 10000,
     df = pd.DataFrame(data={name1:samples})
 
     #Create figure
-    fig, ax = plt.subplots(figsize = (6,3.5),dpi=900)
+    fig, ax = plt.subplots(figsize = (7,3.5),dpi=900)
     
     #Plot histogram and kde 
     df.plot(kind = "hist", density = True, alpha = 0.65, bins = bins,ax=ax, color = "lightsteelblue", lw=0) 
@@ -86,7 +86,7 @@ def plotSquiggleDist(dist,printEn=False,titleTxt="",numSamples = 10000,
     
     #Y
     #ax.set_yticklabels([])
-    ax.set_ylabel(ylab)
+    ax.set_ylabel("Probability Density")
     
     #Overall
     ax.grid(False)

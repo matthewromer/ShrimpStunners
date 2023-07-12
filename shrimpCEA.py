@@ -27,11 +27,15 @@ mpl.rcParams['font.family'] = 'Arial'
 my_pal = {"lightsteelblue","lightcoral"}
 sns.set_style(style='white')
 
+#Enable or disable clipping shrimp moral weight distribution
+clipShrimpWeight = False
+
 ############################# INPUTS #############################
 
 #Import moral weight project results 
 shrimpSimData         = pickle.load(open('shrimp_wr_Mixture Neuron Count_model.p', 'rb'))
-#shrimpSimData[shrimpSimData > 0.3] = 0.3
+if clipShrimpWeight: 
+    shrimpSimData[shrimpSimData > 0.1] = 0.1
 moralWeightS          = sq.discrete(shrimpSimData)
 
 chickenSimData        = pickle.load(open('chickens_wr_Mixture Neuron Count_model.p', 'rb'))
@@ -39,9 +43,8 @@ moralWeightC          = sq.discrete(chickenSimData)
 
 #Data for SWP 
 animalsPerDollarS     = sq.norm(mean=14796, sd=7708,lclip=0.0)
-hoursPerAnimalS       = sq.lognorm(mean=np.log(15),sd=((np.log(180)-np.log(15))/2))/(60) #Hours
-probRenderedUnconS    = sq.beta(a = 3, b= 1.5)
-#painWeightS           = sq.gamma(2.2, 0.9,lclip=0.15,rclip=5)
+hoursPerAnimalS       = sq.lognorm(mean=np.log(20),sd=((np.log(180)-np.log(20))/2))/(60) #Hours
+probRenderedUnconS    = 2/3
 
 #Data for coporate campaings (e.g. THL) from Duffy (2023)
 hoursPerDollarC = sq.gamma( 1.7, 1)*(365*24)
@@ -50,7 +53,7 @@ hoursPerDollarC = sq.gamma( 1.7, 1)*(365*24)
 
 #Obtain hours of disabling-equivalent pain removed per dollar donated to SWP's 
 #intervention 
-hoursPerDollarS       = animalsPerDollarS*hoursPerAnimalS*0.6667
+hoursPerDollarS       = animalsPerDollarS*hoursPerAnimalS*probRenderedUnconS
 
 #Multiply by the RP moral weights to obtain weighted hours of 
 #suffering disabling-equivalent pain averted per dollar 
@@ -86,23 +89,21 @@ plotSquiggleDist(moralWeightS,printEn=True,
                  name1='Shrimp',
                  name2='Chickens')
 
-#Pain Weight
-# plotSquiggleDist(painWeightS,printEn=True,
-#                  titleTxt="Weight of Shrimp Pain",
-#                  numSamples = 200000,
-#                  xText="Pain Weight (1 = Disabling, 5 = Excruciating)",
-#                  xlims = [0,5],
-#                  bins  = 50)
-
-
 #Hours of suffering per shrimp
 plotSquiggleDist(hoursPerAnimalS,printEn=True,
                  titleTxt="Hours of Suffering for Slaughtered Shrimp",
                  numSamples = 10000,
                  xText="Duration of Suffering During Slaughter (Hours)",
                  bins  = 40,
-                 xlims = [0,10], 
-                 ylab="Probability Density")
+                 xlims = [0,10])
+
+#Shrimp helped per dollar
+plotSquiggleDist(animalsPerDollarS,printEn=True,
+                 titleTxt="Animals Helped per Dollar Given to SWP",
+                 numSamples = 200000,
+                 xText="Animals Impacted",
+                 xlims = [0,50000],
+                 bins  = 80)
 
 #Chicken suffering per dollar
 plotSquiggleDist(hoursPerDollarC,printEn=True,
@@ -112,14 +113,6 @@ plotSquiggleDist(hoursPerDollarC,printEn=True,
                  bins  = 100,
                  xlims = [0,100000])
 
-#Probability that stunners work
-plotSquiggleDist(probRenderedUnconS,printEn=True,
-                 titleTxt="Probability that Stunning Renders Shrimp Unconcious",
-                 numSamples = 200000,
-                 xText="Probability",
-                 xlims = [0,1],
-                 bins  = 100, 
-                 ylab="Probability Density")
 
 #Weighted Results 
 plotSquiggleDist(weightedHoursPerDollarS,printEn=True,
