@@ -47,9 +47,9 @@ moralWeightC          = sq.discrete(chickenSimData)
 animalsPerDollarS     = sq.norm(mean=14796, sd=7708,lclip=0.0)
 hoursPerAnimalS       = sq.lognorm(mean=np.log(20),sd=((np.log(180)-np.log(20))/2))/(60) #Hours
 probRenderedUnconS    = 2/3
-sufferingIntensityS   = sq.gamma(1.5,1.01,lclip=1/6,rclip=5)
+sufferingIntensityS   = sq.gamma(1.5,1.0,lclip=0.15,rclip=5)
 
-#Data for coporate campaings (e.g. THL) from Duffy (2023)
+#Data for corporate campaigns (e.g. THL) from Duffy (2023)
 hoursPerDollarC = sq.gamma( 1.7, 1)*(365*24)
 
 ############################ COMPUTATION ###########################
