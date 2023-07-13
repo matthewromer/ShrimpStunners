@@ -35,7 +35,9 @@ clipShrimpWeight = False
 #Import moral weight project results 
 shrimpSimData         = pickle.load(open('shrimp_wr_Mixture Neuron Count_model.p', 'rb'))
 if clipShrimpWeight: 
-    shrimpSimData[shrimpSimData > 0.1] = 0.1
+    shrimpArr = np.array(shrimpSimData)
+    shrimpArr[shrimpArr > 0.1] = 0.1
+    shrimpSimData = shrimpArr.tolist()
 moralWeightS          = sq.discrete(shrimpSimData)
 
 chickenSimData        = pickle.load(open('chickens_wr_Mixture Neuron Count_model.p', 'rb'))
@@ -45,8 +47,7 @@ moralWeightC          = sq.discrete(chickenSimData)
 animalsPerDollarS     = sq.norm(mean=14796, sd=7708,lclip=0.0)
 hoursPerAnimalS       = sq.lognorm(mean=np.log(20),sd=((np.log(180)-np.log(20))/2))/(60) #Hours
 probRenderedUnconS    = 2/3
-sufferingIntensityS   = sq.gamma(2,0.625,lclip=1/6,rclip=5)
-sufferingIntensityS   = sq.gamma(2,0.5,lclip=1/6,rclip=5)
+sufferingIntensityS   = sq.gamma(1.5,1.01,lclip=1/6,rclip=5)
 
 #Data for coporate campaings (e.g. THL) from Duffy (2023)
 hoursPerDollarC = sq.gamma( 1.7, 1)*(365*24)
@@ -63,16 +64,16 @@ weightedHoursPerDollarS = moralWeightS*hoursPerDollarS
 weightedHoursPerDollarC = moralWeightC*hoursPerDollarC
 
 #Summary stats 
-sumStatsS,samplesS = computeSummaryStats(weightedHoursPerDollarS,printEn=True,name='Human-Equivalent Hours Suffering Averted Per Dollar Donated to SWP:',numSamples = numSamples)
-sumStatsC,samplesC = computeSummaryStats(weightedHoursPerDollarC,printEn=True,name='Human-Equivalent Hours Suffering Averted Per Dollar Donated to THL:',numSamples = numSamples)
-computeSummaryStats(sufferingIntensityS,printEn=True,name='Pain Intensity:',numSamples = numSamples)
-
+sumStatWelfareRangeS,samplesWelfareRangeS = computeSummaryStats(moralWeightS,printEn=True,name='Moral Weight of Shrimp:',numSamples = numSamples)
+sumStatWelfareRangeC,samplesWelfareRangeC = computeSummaryStats(moralWeightC,printEn=True,name='Moral Weight of Chickens:',numSamples = numSamples)
+sumStatsHoursPerDollarS,samplesHoursPerDollarS = computeSummaryStats(weightedHoursPerDollarS,printEn=True,name='Human-Equivalent Hours Suffering Averted Per Dollar Donated to SWP:',numSamples = numSamples)
+sumStatsHoursPerDollarC,samplesHoursPerDollarC = computeSummaryStats(weightedHoursPerDollarC,printEn=True,name='Human-Equivalent Hours Suffering Averted Per Dollar Donated to THL:',numSamples = numSamples)
 
 ############################## PLOTS #############################
 
 #Welfare capacity ranges
-boxData = [moralWeightS @10000, moralWeightC @10000]
-fig, ax = plt.subplots(figsize = (6,4),dpi=900)
+boxData = [samplesWelfareRangeS, samplesWelfareRangeC]
+fig, ax = plt.subplots(figsize = (7,4),dpi=900)
 ax.set_xscale("log")
 sns.boxplot(data=boxData, orient='h', ax=ax, showfliers=True, palette=my_pal)
 ax.set_yticks([0, 1])
@@ -83,14 +84,15 @@ name = './Plots/Box Welfare Capacity Range.png'
 fig.savefig(name)
 plotSquiggleDist(moralWeightS,printEn=True,
                  titleTxt="Welfare Capacity Ranges (Zoomed)",
-                 numSamples = 10000,
                  xText="Welfare Capacity Range (Frac. of Human)",
                  xlims = [0.0,1.5],
                  bins  = 40,
                  dist2 = moralWeightC,
                  bins2=40,
                  name1='Shrimp',
-                 name2='Chickens')
+                 name2='Chickens',
+                 data1 = samplesWelfareRangeS,
+                 data2 = samplesWelfareRangeC)
 
 #Hours of suffering per shrimp
 plotSquiggleDist(sufferingIntensityS,printEn=True,
@@ -98,7 +100,7 @@ plotSquiggleDist(sufferingIntensityS,printEn=True,
                  numSamples = 10000,
                  xText="Pain Intensity (0.15 = Hurtful, 1 = Disabling, 5 = Excruciating)",
                  bins  = 40,
-                 xlims = [0.15,5])
+                 xlims = [0,5])
 
 #Intensity of shrimp suffering 
 plotSquiggleDist(hoursPerAnimalS,printEn=True,
@@ -136,18 +138,22 @@ plotSquiggleDist(weightedHoursPerDollarS,printEn=True,
                  bins2=100,
                  name1='Shrimp Stunners',
                  name2='Corp. Campaigns',
-                 data1 = samplesS, 
-                 data2 = samplesC)
+                 data1 = samplesHoursPerDollarS, 
+                 data2 = samplesHoursPerDollarC)
 
 
 #Weighted Results (Box Plot)
-boxData = [samplesS, samplesC]
-fig, ax = plt.subplots(figsize = (6,4),dpi=900)
+boxData = [samplesHoursPerDollarS, samplesHoursPerDollarC]
+fig, ax = plt.subplots(figsize = (7,4),dpi=900)
 ax.set_xscale("log")
 sns.boxplot(data=boxData, orient='h', ax=ax, showfliers=True, palette=my_pal)
 ax.set_yticks([0, 1])
 ax.set_yticklabels(["Shrimp \n Stunners","Corp. Hen \n Welfare \n Campaigns"])
-ax.set_title("Weighted Pain Averted Per Dollar (Log Scale)")
+if clipShrimpWeight:
+    ax.set_title("Weighted Pain Averted Per Dollar (Log Scale) - Shrimp Welfare Range Capped")    
+else:
+    ax.set_title("Weighted Pain Averted Per Dollar (Log Scale)")        
 ax.set_xlabel("Disabling Pain Averted (Weighted Hours Per Dollar)")
+ax.set_xlim(5e-2, 1e6)
 name = './Plots/Box Weighted Pain Averted Per Dollar.png' 
 fig.savefig(name)

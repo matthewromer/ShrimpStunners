@@ -6,7 +6,6 @@
 import squigglepy as sq
 import matplotlib as mpl
 import matplotlib.pyplot as plt
-from matplotlib.ticker import MultipleLocator,FormatStrFormatter,MaxNLocator
 import pandas as pd
 import contextlib
 import numpy as np
@@ -15,6 +14,7 @@ def plotSquiggleDist(dist,printEn=False,titleTxt="",numSamples = 10000,
                      xText="",xlims = [0,0],bins=25,dist2=sq.norm(0,0),
                      bins2=25,name1="",name2="",data1=np.ndarray(0),data2=np.ndarray(0)):
 
+    #Set fonts
     mpl.rcParams['pdf.fonttype'] = 42
     mpl.rcParams['ps.fonttype'] = 42
     mpl.rcParams['font.family'] = 'Arial'
@@ -85,7 +85,6 @@ def plotSquiggleDist(dist,printEn=False,titleTxt="",numSamples = 10000,
         ax.set_xlim(xlims[0], xlims[1])
     
     #Y
-    #ax.set_yticklabels([])
     ax.set_ylabel("Probability Density")
     
     #Overall
@@ -94,7 +93,7 @@ def plotSquiggleDist(dist,printEn=False,titleTxt="",numSamples = 10000,
     
     #Add borders
     ax.patch.set_edgecolor('black')  
-    ax.patch.set_linewidth('1')
+    ax.patch.set_linewidth(1)
     
     #Remove ticks and spines
     ax.tick_params(left = False, bottom = False)
@@ -105,6 +104,7 @@ def plotSquiggleDist(dist,printEn=False,titleTxt="",numSamples = 10000,
     
     if printEn:
         name = './Plots/%s.png' % titleTxt
+        print(name)
         fig.savefig(name)
 
         
